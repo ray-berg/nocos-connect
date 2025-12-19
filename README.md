@@ -1,7 +1,8 @@
 <p align="center">
   <img src="res/logo-header.svg" alt="NOCOS Connect - Your remote desktop"><br>
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#documentation">Documentation</a> •
   <a href="#build-instructions">Build</a> •
-  <a href="#docker-build">Docker</a> •
   <a href="#file-structure">Structure</a> •
   <a href="#screenshots">Screenshots</a>
 </p>
@@ -24,7 +25,13 @@ A cross-platform remote desktop application providing secure, self-hosted remote
 - **Audio Streaming**: Real-time audio transmission
 - **Two-Factor Authentication**: TOTP-based 2FA support
 
-See [NOCOS_CONNECT.md](NOCOS_CONNECT.md) for comprehensive documentation including security review, architecture details, and advanced configuration.
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Build Guide](docs/BUILD_GUIDE.md) | Complete build instructions for all platforms |
+| [API Specification](docs/API_SPECIFICATION.md) | Protocol and API documentation |
+| [NOCOS_CONNECT.md](NOCOS_CONNECT.md) | Architecture, security review, and configuration |
 
 ## Quick Start
 
@@ -41,6 +48,8 @@ vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windo
 ```
 
 ## Build Instructions
+
+> For comprehensive build instructions including Windows, macOS, Android, iOS, and Docker builds, see the [Build Guide](docs/BUILD_GUIDE.md).
 
 ### Ubuntu/Debian
 
