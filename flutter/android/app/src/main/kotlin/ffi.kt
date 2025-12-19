@@ -5,11 +5,11 @@ package ffi
 import android.content.Context
 import java.nio.ByteBuffer
 
-import com.carriez.flutter_hbb.RdClipboardManager
+import io.nocos.connect.RdClipboardManager
 
 object FFI {
     init {
-        System.loadLibrary("rustdesk")
+        System.loadLibrary("nocos_connect")
     }
 
     external fun init(ctx: Context)

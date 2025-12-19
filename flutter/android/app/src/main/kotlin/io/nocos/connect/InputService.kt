@@ -1,4 +1,4 @@
-package com.carriez.flutter_hbb
+package io.nocos.connect
 
 /**
  * Handle remote input and dispatch android gesture

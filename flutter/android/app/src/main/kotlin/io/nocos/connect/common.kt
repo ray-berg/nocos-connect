@@ -1,4 +1,4 @@
-package com.carriez.flutter_hbb
+package io.nocos.connect
 
 import android.Manifest.permission.*
 import android.annotation.SuppressLint

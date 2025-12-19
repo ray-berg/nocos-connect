@@ -1,15 +1,15 @@
 [package]
-name = "rustdesk"
+name = "nocos-connect"
 version = "1.4.4"
-authors = ["rustdesk <info@rustdesk.com>"]
+authors = ["NOCOS <support@nocos.io>"]
 edition = "2021"
 build= "build.rs"
-description = "RustDesk Remote Desktop"
-default-run = "rustdesk"
+description = "NOCOS Connect Remote Desktop"
+default-run = "nocos-connect"
 rust-version = "1.75"
 
 [lib]
-name = "librustdesk"
+name = "libnocos_connect"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [[bin]]
@@ -200,10 +200,10 @@ members = ["libs/scrap", "libs/hbb_common", "libs/enigo", "libs/clipboard", "lib
 exclude = ["vdi/host", "examples/custom_plugin"]
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2025 Purslane Ltd. All rights reserved."
-ProductName = "RustDesk"
-FileDescription = "RustDesk Remote Desktop"
-OriginalFilename = "rustdesk.exe"
+LegalCopyright = "Copyright © 2025 NOCOS. All rights reserved."
+ProductName = "NOCOS Connect"
+FileDescription = "NOCOS Connect Remote Desktop"
+OriginalFilename = "nocos-connect.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 winres = "0.1"
@@ -219,8 +219,8 @@ hound = "3.5"
 docopt = "1.1"
 
 [package.metadata.bundle]
-name = "RustDesk"
-identifier = "com.carriez.rustdesk"
+name = "NOCOS Connect"
+identifier = "io.nocos.connect"
 icon = ["res/32x32.png", "res/128x128.png", "res/128x128@2x.png"]
 osx_minimum_system_version = "10.14"
 
