@@ -139,12 +139,24 @@ pub(super) extern "C" fn cb_msg(
     cb_msg_field!(target);
     cb_msg_field!(id);
 
+    // SECURITY: Validate content pointer before creating slices from raw parts
+    if content.is_null() && len > 0 {
+        return PluginReturn::new(
+            errno::ERR_CALLBACK_INVALID_ARGS,
+            "Content pointer is null but length is non-zero",
+        );
+    }
+
     match &target as _ {
         MSG_TO_PEER_TARGET => {
             cb_msg_field!(peer);
             if let Some(session) = SESSIONS.write().unwrap().get_mut(&peer) {
-                let content_slice =
-                    unsafe { std::slice::from_raw_parts(content as *const u8, len) };
+                // SECURITY: Safe because we validated content is not null when len > 0
+                let content_slice = if len == 0 {
+                    &[]
+                } else {
+                    unsafe { std::slice::from_raw_parts(content as *const u8, len) }
+                };
                 let content_vec = Vec::from(content_slice);
                 let request = PluginRequest {
                     id,
@@ -162,6 +174,14 @@ pub(super) extern "C" fn cb_msg(
         }
         MSG_TO_UI_TARGET => {
             cb_msg_field!(peer);
+            // SECURITY: Validate minimum length for channel bytes (2 bytes required)
+            if len < 2 {
+                return PluginReturn::new(
+                    errno::ERR_CALLBACK_INVALID_ARGS,
+                    "Content too short for UI message (minimum 2 bytes required for channel)",
+                );
+            }
+            // SECURITY: Safe because we validated len >= 2 and content is not null
             let content_slice = unsafe { std::slice::from_raw_parts(content as *const u8, len) };
             let channel = u16::from_le_bytes([content_slice[0], content_slice[1]]);
             let content = std::string::String::from_utf8(content_slice[2..].to_vec())
@@ -171,8 +191,14 @@ pub(super) extern "C" fn cb_msg(
         }
         MSG_TO_CONFIG_TARGET => {
             cb_msg_field!(peer);
+            // SECURITY: Safe because we validated content is not null when len > 0
+            let content_slice = if len == 0 {
+                &[]
+            } else {
+                unsafe { std::slice::from_raw_parts(content as *const u8, len) }
+            };
             let s = early_return_value!(
-                std::str::from_utf8(unsafe { std::slice::from_raw_parts(content as _, len) }),
+                std::str::from_utf8(content_slice),
                 ERR_CALLBACK_INVALID_MSG,
                 "parse msg string"
             );
@@ -215,8 +241,14 @@ pub(super) extern "C" fn cb_msg(
         }
         MSG_TO_EXT_SUPPORT_TARGET => {
             cb_msg_field!(peer);
+            // SECURITY: Safe because we validated content is not null when len > 0 at function start
+            let content_slice = if len == 0 {
+                &[]
+            } else {
+                unsafe { std::slice::from_raw_parts(content as *const u8, len) }
+            };
             let s = early_return_value!(
-                std::str::from_utf8(unsafe { std::slice::from_raw_parts(content as _, len) }),
+                std::str::from_utf8(content_slice),
                 ERR_CALLBACK_INVALID_MSG,
                 "parse msg string"
             );
@@ -244,8 +276,15 @@ fn is_peer_channel(channel: u16) -> bool {
 }
 
 fn handle_msg_to_rustdesk(id: String, content: *const c_void, len: usize) -> PluginReturn {
+    // SECURITY: content pointer is already validated by cb_msg caller
+    // This function is only called from cb_msg which validates content != null when len > 0
+    let content_slice = if len == 0 {
+        &[]
+    } else {
+        unsafe { std::slice::from_raw_parts(content as *const u8, len) }
+    };
     let s = early_return_value!(
-        std::str::from_utf8(unsafe { std::slice::from_raw_parts(content as _, len) }),
+        std::str::from_utf8(content_slice),
         ERR_CALLBACK_INVALID_MSG,
         "parse msg string"
     );

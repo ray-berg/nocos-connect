@@ -574,7 +574,9 @@ async fn handle(data: Data, stream: &mut Connection) {
                 } else if name == "temporary-password" {
                     password::update_temporary_password();
                 } else if name == "permanent-password" {
-                    Config::set_permanent_password(&value);
+                    if let Err(e) = Config::set_permanent_password(&value) {
+                        log::warn!("{}", e);
+                    }
                 } else if name == "salt" {
                     Config::set_salt(&value);
                 } else if name == "voice-call-input" {
@@ -1019,7 +1021,8 @@ pub fn update_temporary_password() -> ResultType<()> {
 
 pub fn get_permanent_password() -> String {
     if let Ok(Some(v)) = get_config("permanent-password") {
-        Config::set_permanent_password(&v);
+        // Ignore validation errors here - we're just syncing from config, not setting new password
+        let _ = Config::set_permanent_password(&v);
         v
     } else {
         Config::get_permanent_password()
@@ -1033,7 +1036,8 @@ pub fn get_fingerprint() -> String {
 }
 
 pub fn set_permanent_password(v: String) -> ResultType<()> {
-    Config::set_permanent_password(&v);
+    // Validate password complexity before setting
+    Config::set_permanent_password(&v).map_err(|e| anyhow::anyhow!(e))?;
     set_config("permanent-password", v)
 }
 

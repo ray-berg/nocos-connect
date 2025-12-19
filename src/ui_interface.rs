@@ -600,7 +600,11 @@ pub fn permanent_password() -> String {
 #[inline]
 pub fn set_permanent_password(password: String) {
     #[cfg(any(target_os = "android", target_os = "ios"))]
-    Config::set_permanent_password(&password);
+    {
+        if let Err(e) = Config::set_permanent_password(&password) {
+            log::warn!("{}", e);
+        }
+    }
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     allow_err!(ipc::set_permanent_password(password));
 }

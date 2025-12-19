@@ -104,6 +104,21 @@ impl PluginNativeHandler for PluginNativeSessionHandler {
             "add_session_hook" => {
                 if let Some(id) = data.get("id") {
                     if let Some(id) = id.as_str() {
+                        // SECURITY: Validate the raw pointer before transmuting to function pointer.
+                        // A null pointer would cause undefined behavior when called.
+                        if raw.is_null() {
+                            log::error!(
+                                "SECURITY: Attempted to register null callback for session '{}'",
+                                id
+                            );
+                            return Some(super::NR {
+                                return_type: -1,
+                                data: std::ptr::null(),
+                            });
+                        }
+                        // SAFETY: We've verified raw is not null. The caller is responsible for
+                        // ensuring the pointer is actually a valid OnSessionRgbaCallback function.
+                        // This is an inherent limitation of the plugin FFI interface.
                         let cb: OnSessionRgbaCallback = unsafe { std::mem::transmute(raw) };
                         SESSION_HANDLER.add_session_hook(id.to_string(), cb);
                         return Some(super::NR {
