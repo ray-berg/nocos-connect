@@ -1691,9 +1691,15 @@ pub fn create_symmetric_key_msg(their_pk_b: [u8; 32]) -> (Bytes, Bytes, secretbo
     let their_pk_b = box_::PublicKey(their_pk_b);
     let (our_pk_b, out_sk_b) = box_::gen_keypair();
     let key = secretbox::gen_key();
-    let nonce = box_::Nonce([0u8; box_::NONCEBYTES]);
+    // Generate a random nonce for each encryption to ensure cryptographic security.
+    // The nonce is prepended to the ciphertext so the receiver can extract it for decryption.
+    let nonce = box_::gen_nonce();
     let sealed_key = box_::seal(&key.0, &nonce, &their_pk_b, &out_sk_b);
-    (Vec::from(our_pk_b.0).into(), sealed_key.into(), key)
+    // Prepend nonce to sealed_key: [nonce (24 bytes) | ciphertext]
+    let mut nonce_and_sealed = Vec::with_capacity(box_::NONCEBYTES + sealed_key.len());
+    nonce_and_sealed.extend_from_slice(&nonce.0);
+    nonce_and_sealed.extend_from_slice(&sealed_key);
+    (Vec::from(our_pk_b.0).into(), nonce_and_sealed.into(), key)
 }
 
 #[inline]

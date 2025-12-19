@@ -52,7 +52,8 @@ impl TOTPInfo {
     }
 
     pub fn into_string(&self) -> ResultType<String> {
-        let secret = encrypt_vec_or_original(self.secret.as_slice(), "00", 1024);
+        // Use version "01" for secure encryption with random nonces and proper key derivation
+        let secret = encrypt_vec_or_original(self.secret.as_slice(), "01", 1024);
         let totp_info = TOTPInfo {
             secret,
             ..self.clone()
@@ -63,9 +64,14 @@ impl TOTPInfo {
 
     pub fn from_str(data: &str) -> ResultType<TOTP> {
         let mut totp_info = serde_json::from_str::<TOTPInfo>(data)?;
-        let (secret, success, _) = decrypt_vec_or_original(&totp_info.secret, "00");
+        // Try version "01" first (secure), then fall back to "00" for backwards compatibility
+        let (secret, success, needs_upgrade) = decrypt_vec_or_original(&totp_info.secret, "01");
         if success {
             totp_info.secret = secret;
+            // If data was encrypted with old version "00", it will be re-encrypted with "01" on next save
+            if needs_upgrade {
+                log::info!("2FA secret will be upgraded to secure encryption on next save");
+            }
             return Ok(totp_info.new_totp()?);
         } else {
             bail!("decrypt_vec_or_original 2fa secret failed")
@@ -121,7 +127,8 @@ pub struct TelegramBot {
 
 impl TelegramBot {
     fn into_string(&self) -> ResultType<String> {
-        let token = encrypt_vec_or_original(self.token_str.as_bytes(), "00", 1024);
+        // Use version "01" for secure encryption with random nonces and proper key derivation
+        let token = encrypt_vec_or_original(self.token_str.as_bytes(), "01", 1024);
         let bot = TelegramBot {
             token,
             ..self.clone()
@@ -145,9 +152,13 @@ impl TelegramBot {
             return Ok(None);
         }
         let mut bot = serde_json::from_str::<TelegramBot>(&data)?;
-        let (token, success, _) = decrypt_vec_or_original(&bot.token, "00");
+        // Try version "01" first (secure), then fall back to "00" for backwards compatibility
+        let (token, success, needs_upgrade) = decrypt_vec_or_original(&bot.token, "01");
         if success {
             bot.token_str = String::from_utf8(token)?;
+            if needs_upgrade {
+                log::info!("Telegram bot token will be upgraded to secure encryption on next save");
+            }
             return Ok(Some(bot));
         }
         bail!("decrypt_vec_or_original telegram bot token failed")
