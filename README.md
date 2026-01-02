@@ -29,6 +29,7 @@ A cross-platform remote desktop application providing secure, self-hosted remote
 
 | Document | Description |
 |----------|-------------|
+| [User Guide](docs/USER_GUIDE.md) | Installation and operation instructions |
 | [Build Guide](docs/BUILD_GUIDE.md) | Complete build instructions for all platforms |
 | [API Specification](docs/API_SPECIFICATION.md) | Protocol and API documentation |
 | [NOCOS_CONNECT.md](NOCOS_CONNECT.md) | Architecture, security review, and configuration |
