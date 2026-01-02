@@ -366,7 +366,7 @@ NOCOS Connect uses:
 - Rate limiting for brute force protection
 - Granular permission controls
 
-**Important**: Review the security findings in `NOCOS_CONNECT.md` before deploying in sensitive environments. Known issues include static nonce usage in encryption and weak key derivation in 2FA storage.
+Previous critical security issues (static nonce in encryption, weak 2FA key derivation) have been resolved. See `NOCOS_CONNECT.md` for the full security review.
 
 ---
 

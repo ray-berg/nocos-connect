@@ -155,41 +155,57 @@ nocos-connect/
 | Category | Status | Risk Level |
 |----------|--------|------------|
 | Authentication | Good | Low |
-| 2FA Implementation | Adequate | Medium |
-| Encryption (Nonce Issue) | Concerning | High |
-| Key Management | Weak | High |
+| 2FA Implementation | Good | Low |
+| Encryption | Good | Low |
+| Key Management | Good | Low |
 | Input Validation | Partial | Medium |
 | Network Security | Good | Low |
 | File Transfer | Good | Low |
 | Memory Safety | Good (Rust) | Low |
 
-### Critical Findings
+### Resolved Security Issues
 
-#### 1. Static Zero Nonce in Encryption (HIGH RISK)
+The following critical issues were identified and fixed in commit `f832f63d3`:
 
-**Location**: `libs/hbb_common/src/lib.rs`
+#### 1. ~~Static Zero Nonce in Encryption~~ (RESOLVED)
 
-The cryptographic key exchange uses a hardcoded zero nonce:
+**Location**: `src/common.rs`
+
+**Previous Issue**: The cryptographic key exchange used a hardcoded zero nonce:
 ```rust
-let nonce = box_::Nonce([0u8; box_::NONCEBYTES]);  // Zero nonce
+// VULNERABLE (old code):
+let nonce = box_::Nonce([0u8; box_::NONCEBYTES]);
+let sealed_key = box_::seal(&key.0, &nonce, &their_pk_b, &out_sk_b);
 ```
 
-**Risk**: Using a static/zero nonce violates fundamental cryptographic security properties. This could potentially allow:
-- Key recovery attacks if the same keypair encrypts multiple messages
-- Replay attacks in certain scenarios
+**Fix**: Now generates a random nonce for each encryption and prepends it to the ciphertext:
+```rust
+// FIXED (current code):
+let nonce = box_::gen_nonce();
+let sealed_key = box_::seal(&key.0, &nonce, &their_pk_b, &out_sk_b);
+// Prepend nonce to sealed_key: [nonce (24 bytes) | ciphertext]
+let mut nonce_and_sealed = Vec::with_capacity(box_::NONCEBYTES + sealed_key.len());
+nonce_and_sealed.extend_from_slice(&nonce.0);
+nonce_and_sealed.extend_from_slice(&sealed_key);
+```
 
-**Recommendation**: Generate a random nonce for each encryption operation and transmit it with the ciphertext.
-
-#### 2. Weak Encryption Key Parameter (HIGH RISK)
+#### 2. ~~Weak Encryption Key Parameter~~ (RESOLVED)
 
 **Location**: `src/auth_2fa.rs`
 
-2FA secrets and Telegram bot tokens are encrypted using a hardcoded key "00":
+**Previous Issue**: 2FA secrets encrypted using weak version "00":
 ```rust
+// VULNERABLE (old code):
 encrypt_vec_or_original(secret, "00", 1024)
 ```
 
-**Recommendation**: Use a proper key derivation function (KDF) like Argon2 or PBKDF2 with machine-specific entropy.
+**Fix**: Now uses version "01" with secure encryption and Argon2 key derivation:
+```rust
+// FIXED (current code):
+encrypt_vec_or_original(self.secret.as_slice(), "01", 1024)
+```
+
+The fix includes backwards compatibility - old "00" encrypted secrets are automatically upgraded to "01" on next save.
 
 ### Medium Priority Findings
 
