@@ -1,4 +1,10 @@
-name: nocos_connect
+# Dart package identifier kept as upstream (flutter_hbb) because every
+# one of the 93 Dart files in lib/ imports `package:flutter_hbb/...`.
+# Reverting the import surface would be 93 files to edit + a merge
+# conflict magnet against upstream; keeping the id here is one line.
+# User-visible branding lives in the description + the MSI/desktop
+# product name, not the package id.
+name: flutter_hbb
 description: NOCOS Connect Remote Desktop Software
 
 # The following line prevents the package from being accidentally published to
