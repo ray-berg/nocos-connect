@@ -9,7 +9,12 @@ default-run = "rustdesk"
 rust-version = "1.75"
 
 [lib]
-name = "libnocos_connect"
+# Keep the upstream library identifier so the many downstream references
+# (build.py, flutter/lib/models/native_model.dart's DynamicLibrary.open,
+# Android jniLibs cp steps in the Actions workflows, examples/ipc.rs)
+# keep working. The user-visible rename lives in [package].name, app
+# labels, .desktop, MSI product strings — not here.
+name = "librustdesk"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [[bin]]

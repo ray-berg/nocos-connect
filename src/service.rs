@@ -1,5 +1,5 @@
 #[cfg(target_os = "macos")]
-use libnocos_connect::*;
+use librustdesk::*;
 
 #[cfg(not(target_os = "macos"))]
 fn main() {}
