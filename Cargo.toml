@@ -1,19 +1,25 @@
 [package]
-name = "nocos-connect"
+# Keep the upstream package id "rustdesk" because flutter_rust_bridge_codegen
+# derives the generated Dart class names from it (`RustdeskImpl`,
+# `RustdeskWire`, `RustdeskPlatform`). The Dart code that consumes these
+# is not generated — it's hand-written in flutter/lib/models/native_model.dart
+# and elsewhere. Renaming the package would force a 4-class-rename across
+# Dart sources for zero user-visible benefit. User-facing branding lives
+# in [package].description, app labels, MSI product strings, and the
+# .desktop file — none of which read from this name.
+name = "rustdesk"
 version = "1.4.4"
 authors = ["NOCOS <support@nocos.io>"]
 edition = "2021"
 build= "build.rs"
 description = "NOCOS Connect Remote Desktop"
-default-run = "rustdesk"
 rust-version = "1.75"
 
 [lib]
-# Keep the upstream library identifier so the many downstream references
-# (build.py, flutter/lib/models/native_model.dart's DynamicLibrary.open,
-# Android jniLibs cp steps in the Actions workflows, examples/ipc.rs)
-# keep working. The user-visible rename lives in [package].name, app
-# labels, .desktop, MSI product strings — not here.
+# See note on [package].name above — same logic applies. The lib id
+# "librustdesk" is referenced by build.py, native_model.dart's
+# DynamicLibrary.open, Android jniLibs cp steps in the workflows, and
+# examples/ipc.rs.
 name = "librustdesk"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
@@ -24,15 +30,6 @@ path = "src/naming.rs"
 [[bin]]
 name = "service"
 path = "src/service.rs"
-
-# Explicit main binary name so the CI packaging steps (which reference
-# target/release/rustdesk.exe) keep working after the package rename
-# from "rustdesk" → "nocos-connect". Changing the many `mv rustdesk.exe`
-# lines in the Actions YAMLs is a wider surface to audit; this is a
-# one-line pin that keeps the existing pipeline intact.
-[[bin]]
-name = "rustdesk"
-path = "src/main.rs"
 
 [features]
 inline = []
