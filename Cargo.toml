@@ -84,6 +84,11 @@ totp-rs = { version = "5.4", default-features = false, features = ["gen_secret",
 stunclient = "0.4"
 kcp-sys= { git = "https://github.com/rustdesk-org/kcp-sys"}
 reqwest = { version = "0.12", features = ["blocking", "socks", "json", "native-tls", "rustls-tls", "rustls-tls-native-roots", "gzip"], default-features=false }
+# NOCOS Connect rendezvous WebSocket (Phase 3.2a-6b).
+# hbb_common already depends on tokio-tungstenite 0.26; we add a
+# top-level dep so src/nocos_rendezvous.rs can import it directly.
+# futures-util is pulled in via hbb_common's re-export, no direct dep.
+tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots", "rustls-tls-webpki-roots"] }
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 # https://github.com/rustdesk/rustdesk/discussions/10197, not use cpal on linux
