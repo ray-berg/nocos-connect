@@ -21,7 +21,7 @@ use crate::plugin::ipc::Plugin;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub use clipboard::ClipboardFile;
 use hbb_common::{
-    allow_err, bail, bytes,
+    allow_err, anyhow, bail, bytes,
     bytes_codec::BytesCodec,
     config::{self, keys::OPTION_ALLOW_WEBSOCKET, Config, Config2},
     futures::StreamExt as _,
