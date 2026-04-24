@@ -20,6 +20,15 @@ path = "src/naming.rs"
 name = "service"
 path = "src/service.rs"
 
+# Explicit main binary name so the CI packaging steps (which reference
+# target/release/rustdesk.exe) keep working after the package rename
+# from "rustdesk" → "nocos-connect". Changing the many `mv rustdesk.exe`
+# lines in the Actions YAMLs is a wider surface to audit; this is a
+# one-line pin that keeps the existing pipeline intact.
+[[bin]]
+name = "rustdesk"
+path = "src/main.rs"
+
 [features]
 inline = []
 cli = []
