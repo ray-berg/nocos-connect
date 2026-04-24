@@ -5,7 +5,7 @@ authors = ["NOCOS <support@nocos.io>"]
 edition = "2021"
 build= "build.rs"
 description = "NOCOS Connect Remote Desktop"
-default-run = "nocos-connect"
+default-run = "rustdesk"
 rust-version = "1.75"
 
 [lib]
