@@ -3,6 +3,7 @@ use hbb_common::{
     bail,
     config::Config,
     get_time,
+    log,
     password_security::{decrypt_vec_or_original, encrypt_vec_or_original},
     ResultType,
 };

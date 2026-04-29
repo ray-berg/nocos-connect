@@ -398,6 +398,16 @@ impl RendezvousMediator {
 
     pub async fn start(server: ServerPtr, host: String) -> ResultType<()> {
         log::info!("start rendezvous mediator of {}", host);
+        // NOCOS Connect path (Phase 3.2a-6a): when NOCOS_CONNECT_BASE_URL
+        // is set, delegate to the NOCOS-native HTTP/WS mediator instead
+        // of stock UDP/WS rendezvous. The `_ = server` silences the
+        // unused-param warning; the NOCOS path doesn't need the shared
+        // Server handle today — 3.2a-6b reintroduces it when the
+        // rendezvous WS spawns connection tasks.
+        if crate::nocos_rendezvous::is_enabled() {
+            let _ = server;
+            return crate::nocos_rendezvous::start(host).await;
+        }
         //If the investment agent type is http or https, then tcp forwarding is enabled.
         if (cfg!(debug_assertions) && option_env!("TEST_TCP").is_some())
             || Config::is_proxy()

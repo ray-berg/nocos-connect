@@ -21,4 +21,8 @@ jobs:
   run-ci:
     uses: ./.github/workflows/flutter-build.yml
     with:
-      upload-artifact: false
+      # [nocos] flipped true on this branch so the i686 sciter + x86_64
+      # flutter Windows jobs publish their .exe/.msi artifacts for
+      # dogfood download. Master keeps `false`.
+      upload-artifact: true
+      upload-tag: "nocos-dev-build"

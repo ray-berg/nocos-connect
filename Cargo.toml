@@ -1,15 +1,26 @@
 [package]
-name = "nocos-connect"
+# Keep the upstream package id "rustdesk" because flutter_rust_bridge_codegen
+# derives the generated Dart class names from it (`RustdeskImpl`,
+# `RustdeskWire`, `RustdeskPlatform`). The Dart code that consumes these
+# is not generated — it's hand-written in flutter/lib/models/native_model.dart
+# and elsewhere. Renaming the package would force a 4-class-rename across
+# Dart sources for zero user-visible benefit. User-facing branding lives
+# in [package].description, app labels, MSI product strings, and the
+# .desktop file — none of which read from this name.
+name = "rustdesk"
 version = "1.4.4"
 authors = ["NOCOS <support@nocos.io>"]
 edition = "2021"
 build= "build.rs"
 description = "NOCOS Connect Remote Desktop"
-default-run = "nocos-connect"
 rust-version = "1.75"
 
 [lib]
-name = "libnocos_connect"
+# See note on [package].name above — same logic applies. The lib id
+# "librustdesk" is referenced by build.py, native_model.dart's
+# DynamicLibrary.open, Android jniLibs cp steps in the workflows, and
+# examples/ipc.rs.
+name = "librustdesk"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [[bin]]
@@ -84,6 +95,11 @@ totp-rs = { version = "5.4", default-features = false, features = ["gen_secret",
 stunclient = "0.4"
 kcp-sys= { git = "https://github.com/rustdesk-org/kcp-sys"}
 reqwest = { version = "0.12", features = ["blocking", "socks", "json", "native-tls", "rustls-tls", "rustls-tls-native-roots", "gzip"], default-features=false }
+# NOCOS Connect rendezvous WebSocket (Phase 3.2a-6b).
+# hbb_common already depends on tokio-tungstenite 0.26; we add a
+# top-level dep so src/nocos_rendezvous.rs can import it directly.
+# futures-util is pulled in via hbb_common's re-export, no direct dep.
+tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots", "rustls-tls-webpki-roots"] }
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 # https://github.com/rustdesk/rustdesk/discussions/10197, not use cpal on linux
